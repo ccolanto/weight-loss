@@ -73,6 +73,12 @@ class CaliperTracker {
                 }
             });
         });
+        
+        // Also save age when it loses focus
+        const ageInput = document.getElementById('age');
+        ageInput.addEventListener('blur', () => {
+            this.saveCurrentAge();
+        });
     }
 
     initializeDatePicker() {
@@ -144,8 +150,13 @@ class CaliperTracker {
             // Load saved age for the new user
             this.loadSavedAge();
             
-            // Reset form
-            document.getElementById('caliper-form').reset();
+            // Reset form except for age field
+            const form = document.getElementById('caliper-form');
+            const ageValue = document.getElementById('age').value;
+            form.reset();
+            if (ageValue) {
+                document.getElementById('age').value = ageValue;
+            }
             document.getElementById('body-fat-result').textContent = '--';
             document.getElementById('current-weight').textContent = '--';
             document.getElementById('fat-mass').textContent = '--';
@@ -172,6 +183,9 @@ class CaliperTracker {
         };
 
         if (date && age && Object.values(measurements).every(v => v > 0)) {
+            // Save the age for future use
+            this.saveCurrentAge();
+            
             const isFemale = this.currentUser === 'charlotte';
             const bodyFat = this.calculateBodyFat(measurements, age, isFemale);
             const data = {
@@ -208,7 +222,15 @@ class CaliperTracker {
             
             this.updateCharts();
             this.updateTable();
-            form.reset();
+            // Don't reset the form completely, just clear the measurement fields
+            // This keeps the age field populated for future entries
+            document.getElementById('chest').value = '';
+            document.getElementById('abdominal').value = '';
+            document.getElementById('thigh').value = '';
+            document.getElementById('tricep').value = '';
+            document.getElementById('subscapular').value = '';
+            document.getElementById('suprailiac').value = '';
+            document.getElementById('midaxillary').value = '';
             
             // Restore the body fat, composition values and age
             if (!isNaN(currentBodyFat)) {
