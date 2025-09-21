@@ -1,0 +1,54 @@
+.measurement-label {
+    position: relative;
+    cursor: help;
+    display: inline-block;
+}
+
+.measurement-tooltip {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.measurement-tooltip img {
+    display: block;
+    max-width: 958px;
+    width: 100%;
+    height: auto;
+    border-radius: 1px;
+}
+
+.measurement-label:hover .measurement-tooltip {
+    display: block;
+}
+
+.measurement-tooltip-title {
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 5px 10px;
+    border-radius: 4px;
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    font-size: 18px;
+}
+
+@media (max-width: 768px) {
+    .measurement-tooltip img {
+        max-width: 90vw;
+    }
+    
+    .measurement-tooltip-title {
+        font-size: 16px;
+        width: 90%;
+    }
+}
