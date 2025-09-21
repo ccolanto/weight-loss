@@ -1,6 +1,7 @@
 class WorkoutTracker {
     constructor() {
-        this.storage = new StorageManager('workoutData');
+        this.currentUser = 'chris'; // Default to Chris
+        this.storage = new StorageManager('workoutData', this.currentUser);
         this.pieChart = null;
         this.caloriesChart = null;
         this.initializeForm();
@@ -130,6 +131,20 @@ class WorkoutTracker {
             this.storage.deleteItem(id);
             this.updateCharts();
             this.updateTable();
+        }
+    }
+
+    switchUser(newUser) {
+        if (newUser !== this.currentUser) {
+            // Switch user
+            this.currentUser = newUser;
+            
+            // Update storage manager to use the new user
+            this.storage.setUser(newUser);
+            
+            // Update table and charts with new user's data
+            this.updateTable();
+            this.updateCharts();
         }
     }
 

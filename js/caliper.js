@@ -1,7 +1,8 @@
 class CaliperTracker {
     constructor() {
-        this.storage = new StorageManager('caliperData');
-        this.weightStorage = new StorageManager('weightData');
+        this.currentUser = 'chris'; // Default to Chris
+        this.storage = new StorageManager('caliperData', this.currentUser);
+        this.weightStorage = new StorageManager('weightData', this.currentUser);
         this.measurementsChart = null;
         this.sitesChart = null;
         this.massCompositionChart = null;
@@ -14,7 +15,7 @@ class CaliperTracker {
     }
 
     loadSavedAge() {
-        const savedAge = localStorage.getItem('savedAge');
+        const savedAge = localStorage.getItem(`savedAge_${this.currentUser}`);
         if (savedAge) {
             document.getElementById('age').value = savedAge;
         }
@@ -23,7 +24,7 @@ class CaliperTracker {
     saveCurrentAge() {
         const currentAge = document.getElementById('age').value;
         if (currentAge) {
-            localStorage.setItem('savedAge', currentAge);
+            localStorage.setItem(`savedAge_${this.currentUser}`, currentAge);
         }
     }
 
@@ -81,14 +82,24 @@ class CaliperTracker {
         });
     }
 
-    calculateBodyFat(measurements, age) {
-        // Jackson/Pollock 7-site formula for males
+    calculateBodyFat(measurements, age, isFemale = false) {
         const sum = Object.values(measurements).reduce((a, b) => a + b, 0);
-        const bodyDensity = 1.112 - (0.00043499 * sum) + 
-                           (0.00000055 * sum * sum) - 
-                           (0.00028826 * age);
-        const bodyFat = (495 / bodyDensity) - 450;
-        return Math.round(bodyFat * 10) / 10;
+        
+        if (isFemale) {
+            // Jackson/Pollock 7-site formula for females
+            const bodyDensity = 1.097 - (0.00046971 * sum) + 
+                               (0.00000056 * sum * sum) - 
+                               (0.00012828 * age);
+            const bodyFat = (495 / bodyDensity) - 450;
+            return Math.round(bodyFat * 10) / 10;
+        } else {
+            // Jackson/Pollock 7-site formula for males
+            const bodyDensity = 1.112 - (0.00043499 * sum) + 
+                               (0.00000055 * sum * sum) - 
+                               (0.00028826 * age);
+            const bodyFat = (495 / bodyDensity) - 450;
+            return Math.round(bodyFat * 10) / 10;
+        }
     }
 
     updateBodyFatCalculation() {
@@ -103,14 +114,46 @@ class CaliperTracker {
         };
 
         const age = parseInt(document.getElementById('age').value) || 0;
+        const isFemale = this.currentUser === 'charlotte';
 
         if (Object.values(measurements).every(v => v > 0) && age > 0) {
-            const bodyFat = this.calculateBodyFat(measurements, age);
+            const bodyFat = this.calculateBodyFat(measurements, age, isFemale);
             document.getElementById('body-fat-result').textContent = bodyFat;
             this.updateBodyComposition(bodyFat);
         } else {
             document.getElementById('body-fat-result').textContent = '--';
             this.updateBodyComposition(null);
+        }
+    }
+
+    switchUser(newUser) {
+        if (newUser !== this.currentUser) {
+            // Save current form data before switching
+            const currentAge = document.getElementById('age').value;
+            if (currentAge) {
+                localStorage.setItem(`savedAge_${this.currentUser}`, currentAge);
+            }
+
+            // Switch user
+            this.currentUser = newUser;
+            
+            // Update storage managers to use the new user
+            this.storage.setUser(newUser);
+            this.weightStorage.setUser(newUser);
+            
+            // Load saved age for the new user
+            this.loadSavedAge();
+            
+            // Reset form
+            document.getElementById('caliper-form').reset();
+            document.getElementById('body-fat-result').textContent = '--';
+            document.getElementById('current-weight').textContent = '--';
+            document.getElementById('fat-mass').textContent = '--';
+            document.getElementById('lean-mass').textContent = '--';
+            
+            // Update table and charts with new user's data
+            this.updateTable();
+            this.updateCharts();
         }
     }
 
@@ -129,7 +172,8 @@ class CaliperTracker {
         };
 
         if (date && age && Object.values(measurements).every(v => v > 0)) {
-            const bodyFat = this.calculateBodyFat(measurements, age);
+            const isFemale = this.currentUser === 'charlotte';
+            const bodyFat = this.calculateBodyFat(measurements, age, isFemale);
             const data = {
                 date,
                 age,

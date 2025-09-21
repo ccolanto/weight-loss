@@ -1,6 +1,13 @@
 class StorageManager {
-    constructor(key) {
-        this.key = key;
+    constructor(key, user = 'chris') {
+        this.baseKey = key;
+        this.user = user;
+        this.key = `${key}_${user}`;
+    }
+
+    setUser(user) {
+        this.user = user;
+        this.key = `${this.baseKey}_${user}`;
     }
 
     getData() {

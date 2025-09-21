@@ -22,4 +22,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const weightTracker = new WeightTracker();
     const workoutTracker = new WorkoutTracker();
     const caliperTracker = new CaliperTracker();
+
+    // Function to switch user across all trackers
+    window.switchUser = function(newUser) {
+        weightTracker.switchUser(newUser);
+        workoutTracker.switchUser(newUser);
+        caliperTracker.switchUser(newUser);
+        
+        // Update UI to reflect current user
+        const userDisplay = document.getElementById('current-user-display');
+        if (userDisplay) {
+            userDisplay.textContent = newUser.charAt(0).toUpperCase() + newUser.slice(1);
+        }
+    };
+
+    // Add event listeners for user switching buttons
+    const chrisBtn = document.getElementById('switch-to-chris');
+    const charlotteBtn = document.getElementById('switch-to-charlotte');
+    
+    if (chrisBtn) {
+        chrisBtn.addEventListener('click', () => {
+            switchUser('chris');
+            // Update button states
+            chrisBtn.classList.add('active');
+            if (charlotteBtn) charlotteBtn.classList.remove('active');
+        });
+    }
+    
+    if (charlotteBtn) {
+        charlotteBtn.addEventListener('click', () => {
+            switchUser('charlotte');
+            // Update button states
+            charlotteBtn.classList.add('active');
+            if (chrisBtn) chrisBtn.classList.remove('active');
+        });
+    }
 });

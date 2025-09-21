@@ -1,6 +1,7 @@
 class WeightTracker {
     constructor() {
-        this.storage = new StorageManager('weightData');
+        this.currentUser = 'chris'; // Default to Chris
+        this.storage = new StorageManager('weightData', this.currentUser);
         this.weightChart = null;
         this.initializeForm();
         this.initializeDatePicker();
@@ -103,6 +104,20 @@ class WeightTracker {
             this.storage.deleteItem(id);
             this.updateChart();
             this.updateTable();
+        }
+    }
+
+    switchUser(newUser) {
+        if (newUser !== this.currentUser) {
+            // Switch user
+            this.currentUser = newUser;
+            
+            // Update storage manager to use the new user
+            this.storage.setUser(newUser);
+            
+            // Update table and chart with new user's data
+            this.updateTable();
+            this.updateChart();
         }
     }
 
