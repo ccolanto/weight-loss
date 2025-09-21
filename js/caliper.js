@@ -407,54 +407,6 @@ class CaliperTracker {
                 }
             }
         });
-        this.updateCharts();
-    }
-
-    updateCharts() {
-        const data = this.storage.getItems()
-            .sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        // Update Body Fat % Chart
-        if (this.measurementsChart) {
-            this.measurementsChart.data.labels = data.map(item => item.date);
-            this.measurementsChart.data.datasets[0].data = data.map(item => item.bodyFat);
-            this.measurementsChart.update();
-        }
-
-        // Update Sites Chart
-        if (this.sitesChart) {
-            this.sitesChart.data.labels = data.map(item => item.date);
-            this.sitesChart.data.datasets[0].data = data.map(item => item.chest);
-            this.sitesChart.data.datasets[1].data = data.map(item => item.abdominal);
-            this.sitesChart.data.datasets[2].data = data.map(item => item.thigh);
-            this.sitesChart.data.datasets[3].data = data.map(item => item.tricep);
-            this.sitesChart.data.datasets[4].data = data.map(item => item.subscapular);
-            this.sitesChart.data.datasets[5].data = data.map(item => item.suprailiac);
-            this.sitesChart.data.datasets[6].data = data.map(item => item.midaxillary);
-            this.sitesChart.update();
-        }
-
-        // Update Mass Composition Chart
-        if (this.massCompositionChart) {
-            const massData = data.map(item => {
-                const weightData = this.weightStorage.getItems()
-                    .filter(w => w.date <= item.date)
-                    .sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                if (weightData.length > 0) {
-                    const weight = weightData[0].weight;
-                    const fatMass = (weight * (item.bodyFat / 100));
-                    const leanMass = weight - fatMass;
-                    return { fatMass, leanMass };
-                }
-                return { fatMass: null, leanMass: null };
-            });
-
-            this.massCompositionChart.data.labels = data.map(item => item.date);
-            this.massCompositionChart.data.datasets[0].data = massData.map(item => item.fatMass);
-            this.massCompositionChart.data.datasets[1].data = massData.map(item => item.leanMass);
-            this.massCompositionChart.update();
-        }
 
         // Mass Composition Chart
         const ctxMass = document.getElementById('mass-composition-chart').getContext('2d');
@@ -505,5 +457,54 @@ class CaliperTracker {
                 }
             }
         });
+
+        this.updateCharts();
+    }
+
+    updateCharts() {
+        const data = this.storage.getItems()
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // Update Body Fat % Chart
+        if (this.measurementsChart) {
+            this.measurementsChart.data.labels = data.map(item => item.date);
+            this.measurementsChart.data.datasets[0].data = data.map(item => item.bodyFat);
+            this.measurementsChart.update();
+        }
+
+        // Update Sites Chart
+        if (this.sitesChart) {
+            this.sitesChart.data.labels = data.map(item => item.date);
+            this.sitesChart.data.datasets[0].data = data.map(item => item.chest);
+            this.sitesChart.data.datasets[1].data = data.map(item => item.abdominal);
+            this.sitesChart.data.datasets[2].data = data.map(item => item.thigh);
+            this.sitesChart.data.datasets[3].data = data.map(item => item.tricep);
+            this.sitesChart.data.datasets[4].data = data.map(item => item.subscapular);
+            this.sitesChart.data.datasets[5].data = data.map(item => item.suprailiac);
+            this.sitesChart.data.datasets[6].data = data.map(item => item.midaxillary);
+            this.sitesChart.update();
+        }
+
+        // Update Mass Composition Chart
+        if (this.massCompositionChart) {
+            const massData = data.map(item => {
+                const weightData = this.weightStorage.getItems()
+                    .filter(w => w.date <= item.date)
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                if (weightData.length > 0) {
+                    const weight = weightData[0].weight;
+                    const fatMass = (weight * (item.bodyFat / 100));
+                    const leanMass = weight - fatMass;
+                    return { fatMass, leanMass };
+                }
+                return { fatMass: null, leanMass: null };
+            });
+
+            this.massCompositionChart.data.labels = data.map(item => item.date);
+            this.massCompositionChart.data.datasets[0].data = massData.map(item => item.fatMass);
+            this.massCompositionChart.data.datasets[1].data = massData.map(item => item.leanMass);
+            this.massCompositionChart.update();
+        }
     }
 }

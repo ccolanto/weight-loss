@@ -3,11 +3,26 @@ class StorageManager {
         this.baseKey = key;
         this.user = user;
         this.key = `${key}_${user}`;
+        this.migrateOldData();
     }
 
     setUser(user) {
         this.user = user;
         this.key = `${this.baseKey}_${user}`;
+    }
+
+    // Migrate old data to user-specific keys
+    migrateOldData() {
+        // Only migrate for Chris since that's the original user
+        if (this.user === 'chris') {
+            const oldData = localStorage.getItem(this.baseKey);
+            const newData = localStorage.getItem(this.key);
+            
+            // If old data exists but new data doesn't, migrate it
+            if (oldData && !newData) {
+                localStorage.setItem(this.key, oldData);
+            }
+        }
     }
 
     getData() {
