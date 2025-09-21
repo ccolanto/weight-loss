@@ -15,6 +15,19 @@ class WorkoutTracker {
             e.preventDefault();
             this.saveWorkout(e);
         });
+
+        // Add event listener for workout type selection
+        document.getElementById('workout-type').addEventListener('change', (event) => {
+            const selectedType = event.target.value;
+            const customWorkoutContainer = document.getElementById('custom-workout-container');
+            
+            if (selectedType === 'other') {
+                customWorkoutContainer.style.display = 'block';
+            } else {
+                customWorkoutContainer.style.display = 'none';
+                document.getElementById('custom-workout').value = '';
+            }
+        });
     }
 
     initializeDatePicker() {
@@ -27,9 +40,20 @@ class WorkoutTracker {
     saveWorkout(event) {
         const form = event.target;
         const date = document.getElementById('workout-date').value;
-        const type = document.getElementById('workout-type').value;
+        let type = document.getElementById('workout-type').value;
         const duration = parseInt(document.getElementById('workout-duration').value);
         const calories = parseInt(document.getElementById('calories-burned').value);
+
+        // If "other" is selected, use the custom workout type
+        if (type === 'other') {
+            const customWorkout = document.getElementById('custom-workout').value.trim();
+            if (customWorkout) {
+                type = customWorkout;
+            } else {
+                alert('Please specify the workout type.');
+                return;
+            }
+        }
 
         if (date && type && duration && calories) {
             if (form.dataset.editing) {
@@ -42,6 +66,9 @@ class WorkoutTracker {
             this.updateCharts();
             this.updateTable();
             form.reset();
+            // Hide the custom workout input field after saving
+            document.getElementById('custom-workout-container').style.display = 'none';
+            document.getElementById('custom-workout').value = '';
         }
     }
 
